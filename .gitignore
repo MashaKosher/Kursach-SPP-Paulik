@@ -1,0 +1,34 @@
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Node / package managers
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Build outputs
+**/dist/
+**/build/
+**/.output/
+frontend/.vite/
+
+# Env files (secrets)
+**/.env
+**/.env.*
+backend/config/env/*.env
+
+# Prisma (SQLite, if ever used)
+**/*.db
+**/*.db-journal
+
+# Coverage
+coverage/
+
+
