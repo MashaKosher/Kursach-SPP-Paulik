@@ -20,9 +20,6 @@ pnpm-debug.log*
 frontend/.vite/
 
 # Env files (secrets)
-**/.env
-**/.env.*
-backend/config/env/*.env
 
 # Prisma (SQLite, if ever used)
 **/*.db
