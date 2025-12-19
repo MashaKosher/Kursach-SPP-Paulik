@@ -26,15 +26,19 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.removeItem("user");
   }
 
+  function setSession(nextToken: string, nextUser: AuthUser) {
+    token.value = nextToken;
+    user.value = AuthUserSchema.parse(nextUser);
+    localStorage.setItem("token", nextToken);
+    localStorage.setItem("user", JSON.stringify(user.value));
+  }
+
   async function register(email: string, password: string, name?: string) {
     const res = await apiFetch<{ token: string; user: AuthUser }>("/auth/register", {
       method: "POST",
       body: JSON.stringify({ email, password, name })
     });
-    token.value = res.token;
-    user.value = AuthUserSchema.parse(res.user);
-    localStorage.setItem("token", res.token);
-    localStorage.setItem("user", JSON.stringify(user.value));
+    setSession(res.token, res.user);
   }
 
   async function login(email: string, password: string) {
@@ -42,10 +46,15 @@ export const useAuthStore = defineStore("auth", () => {
       method: "POST",
       body: JSON.stringify({ email, password })
     });
-    token.value = res.token;
-    user.value = AuthUserSchema.parse(res.user);
-    localStorage.setItem("token", res.token);
-    localStorage.setItem("user", JSON.stringify(user.value));
+    setSession(res.token, res.user);
+  }
+
+  async function loginWithGoogle(idToken: string) {
+    const res = await apiFetch<{ token: string; user: AuthUser }>("/auth/google", {
+      method: "POST",
+      body: JSON.stringify({ idToken })
+    });
+    setSession(res.token, res.user);
   }
 
   async function logout() {
@@ -62,7 +71,7 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.setItem("user", JSON.stringify(user.value));
   }
 
-  return { token, user, isAuthed, register, login, logout, refreshMe };
+  return { token, user, isAuthed, setSession, register, login, loginWithGoogle, logout, refreshMe };
 });
 
 function isJwtExpired(token: string) {

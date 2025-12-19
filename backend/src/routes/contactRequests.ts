@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
 import { requireAuth } from "../middleware/auth.js";
+import { requireRole } from "../middleware/roles.js";
 import { ListQuerySchema, toSkipTake } from "../utils/pagination.js";
 
 export const contactRequestsRouter = Router();
@@ -25,7 +26,7 @@ contactRequestsRouter.post("/", async (req, res, next) => {
 });
 
 // Protected: list/update/delete
-contactRequestsRouter.get("/", requireAuth, async (req, res, next) => {
+contactRequestsRouter.get("/", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const query = ListQuerySchema.extend({
       status: z.string().trim().optional()
@@ -63,7 +64,7 @@ const ContactUpdateSchema = z.object({
   status: z.enum(["new", "in_progress", "done", "archived"]).optional()
 });
 
-contactRequestsRouter.put("/:id", requireAuth, async (req, res, next) => {
+contactRequestsRouter.put("/:id", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const id = z.string().uuid().parse(req.params.id);
     const body = ContactUpdateSchema.parse(req.body);
@@ -74,7 +75,7 @@ contactRequestsRouter.put("/:id", requireAuth, async (req, res, next) => {
   }
 });
 
-contactRequestsRouter.delete("/:id", requireAuth, async (req, res, next) => {
+contactRequestsRouter.delete("/:id", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const id = z.string().uuid().parse(req.params.id);
     await prisma.contactRequest.delete({ where: { id } });

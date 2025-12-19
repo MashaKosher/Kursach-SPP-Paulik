@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { z } from "zod";
 import { useAuthStore } from "../stores/auth";
@@ -12,6 +12,7 @@ const email = ref("");
 const password = ref("");
 const error = ref<string | null>(null);
 const loading = ref(false);
+const googleReady = ref(false);
 
 const LoginSchema = z.object({
   email: z.string().email("Некорректный email"),
@@ -36,6 +37,41 @@ async function onSubmit() {
     loading.value = false;
   }
 }
+
+async function onGoogleCredential(idToken: string) {
+  error.value = null;
+  loading.value = true;
+  try {
+    await auth.loginWithGoogle(idToken);
+    const next = typeof route.query.next === "string" ? route.query.next : "/admin/products";
+    await router.replace(next);
+  } catch (e: any) {
+    error.value = e?.message || "Не удалось войти через Google";
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(() => {
+  const clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID as string | undefined;
+  const google = (window as any).google;
+  if (!clientId || !google?.accounts?.id) return;
+
+  google.accounts.id.initialize({
+    client_id: clientId,
+    callback: (resp: any) => {
+      if (resp?.credential) void onGoogleCredential(resp.credential);
+    }
+  });
+
+  google.accounts.id.renderButton(document.getElementById("googleBtn"), {
+    theme: "outline",
+    size: "large",
+    width: 360
+  });
+
+  googleReady.value = true;
+});
 </script>
 
 <template>
@@ -76,6 +112,13 @@ async function onSubmit() {
       >
         {{ loading ? "Входим..." : "Войти" }}
       </button>
+
+      <div class="pt-2">
+        <div v-if="!googleReady" class="text-xs text-slate-500">
+          Google-вход появится после установки <span class="font-mono">VITE_GOOGLE_CLIENT_ID</span>.
+        </div>
+        <div id="googleBtn" class="flex justify-center"></div>
+      </div>
     </form>
 
     <p class="text-xs text-slate-500">

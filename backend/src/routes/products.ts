@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
 import { requireAuth } from "../middleware/auth.js";
+import { requireRole } from "../middleware/roles.js";
 import { ListQuerySchema, toSkipTake } from "../utils/pagination.js";
 
 export const productsRouter = Router();
@@ -81,7 +82,7 @@ const ProductCreateSchema = z.object({
   tagIds: z.array(z.string().uuid()).optional()
 });
 
-productsRouter.post("/", requireAuth, async (req, res, next) => {
+productsRouter.post("/", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const body = ProductCreateSchema.parse(req.body);
     const created = await prisma.product.create({
@@ -117,7 +118,7 @@ productsRouter.post("/", requireAuth, async (req, res, next) => {
 
 const ProductUpdateSchema = ProductCreateSchema.partial();
 
-productsRouter.put("/:id", requireAuth, async (req, res, next) => {
+productsRouter.put("/:id", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const id = z.string().uuid().parse(req.params.id);
     const body = ProductUpdateSchema.parse(req.body);
@@ -161,7 +162,7 @@ productsRouter.put("/:id", requireAuth, async (req, res, next) => {
   }
 });
 
-productsRouter.delete("/:id", requireAuth, async (req, res, next) => {
+productsRouter.delete("/:id", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const id = z.string().uuid().parse(req.params.id);
     await prisma.product.delete({ where: { id } });

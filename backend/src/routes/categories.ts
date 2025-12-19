@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
 import { requireAuth } from "../middleware/auth.js";
+import { requireRole } from "../middleware/roles.js";
 import { ListQuerySchema, toSkipTake } from "../utils/pagination.js";
 
 export const categoriesRouter = Router();
@@ -40,7 +41,7 @@ const CategoryCreateSchema = z.object({
   slug: z.string().trim().min(1).max(120)
 });
 
-categoriesRouter.post("/", requireAuth, async (req, res, next) => {
+categoriesRouter.post("/", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const body = CategoryCreateSchema.parse(req.body);
     const created = await prisma.category.create({ data: body });
@@ -52,7 +53,7 @@ categoriesRouter.post("/", requireAuth, async (req, res, next) => {
 
 const CategoryUpdateSchema = CategoryCreateSchema.partial();
 
-categoriesRouter.put("/:id", requireAuth, async (req, res, next) => {
+categoriesRouter.put("/:id", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const id = z.string().uuid().parse(req.params.id);
     const body = CategoryUpdateSchema.parse(req.body);
@@ -63,7 +64,7 @@ categoriesRouter.put("/:id", requireAuth, async (req, res, next) => {
   }
 });
 
-categoriesRouter.delete("/:id", requireAuth, async (req, res, next) => {
+categoriesRouter.delete("/:id", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const id = z.string().uuid().parse(req.params.id);
     await prisma.category.delete({ where: { id } });

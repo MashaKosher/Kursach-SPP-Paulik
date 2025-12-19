@@ -18,7 +18,8 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().min(1),
   JWT_SECRET: z.string().min(16, "JWT_SECRET should be at least 16 chars"),
   JWT_EXPIRES_IN: z.string().default("7d"),
-  CORS_ORIGIN: z.string().default("*")
+  CORS_ORIGIN: z.string().default("*"),
+  GOOGLE_CLIENT_ID: z.string().min(1).optional()
 });
 
 export const env = EnvSchema.parse({
@@ -27,7 +28,8 @@ export const env = EnvSchema.parse({
   DATABASE_URL: process.env.DATABASE_URL,
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
-  CORS_ORIGIN: process.env.CORS_ORIGIN
+  CORS_ORIGIN: process.env.CORS_ORIGIN,
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID
 });
 
 

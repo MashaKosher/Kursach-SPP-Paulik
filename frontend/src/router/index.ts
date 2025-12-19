@@ -10,6 +10,7 @@ const LoginPage = () => import("../pages/LoginPage.vue");
 const RegisterPage = () => import("../pages/RegisterPage.vue");
 const AdminProductsPage = () => import("../pages/admin/AdminProductsPage.vue");
 const AdminNewsPage = () => import("../pages/admin/AdminNewsPage.vue");
+const AdminUsersPage = () => import("../pages/admin/AdminUsersPage.vue");
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -22,7 +23,8 @@ export const router = createRouter({
     { path: "/login", name: "login", component: LoginPage },
     { path: "/register", name: "register", component: RegisterPage },
     { path: "/admin/products", name: "adminProducts", component: AdminProductsPage, meta: { requiresAuth: true } },
-    { path: "/admin/news", name: "adminNews", component: AdminNewsPage, meta: { requiresAuth: true } }
+    { path: "/admin/news", name: "adminNews", component: AdminNewsPage, meta: { requiresAuth: true } },
+    { path: "/admin/users", name: "adminUsers", component: AdminUsersPage, meta: { requiresAuth: true } }
   ]
 });
 

@@ -251,6 +251,9 @@ async function remove(id: string) {
         <RouterLink to="/admin/news" class="rounded-md border bg-white px-3 py-1.5 hover:bg-slate-50">
           Новости
         </RouterLink>
+        <RouterLink to="/admin/users" class="rounded-md border bg-white px-3 py-1.5 hover:bg-slate-50">
+          Пользователи
+        </RouterLink>
       </div>
 
       <div class="flex flex-col gap-2 rounded-lg border bg-white p-3 sm:flex-row sm:items-center">

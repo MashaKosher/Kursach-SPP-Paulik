@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
 import { requireAuth } from "../middleware/auth.js";
+import { requireRole } from "../middleware/roles.js";
 import { ListQuerySchema, toSkipTake } from "../utils/pagination.js";
 
 export const tagsRouter = Router();
@@ -40,7 +41,7 @@ const TagCreateSchema = z.object({
   slug: z.string().trim().min(1).max(80)
 });
 
-tagsRouter.post("/", requireAuth, async (req, res, next) => {
+tagsRouter.post("/", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const body = TagCreateSchema.parse(req.body);
     const created = await prisma.tag.create({ data: body });
@@ -52,7 +53,7 @@ tagsRouter.post("/", requireAuth, async (req, res, next) => {
 
 const TagUpdateSchema = TagCreateSchema.partial();
 
-tagsRouter.put("/:id", requireAuth, async (req, res, next) => {
+tagsRouter.put("/:id", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const id = z.string().uuid().parse(req.params.id);
     const body = TagUpdateSchema.parse(req.body);
@@ -63,7 +64,7 @@ tagsRouter.put("/:id", requireAuth, async (req, res, next) => {
   }
 });
 
-tagsRouter.delete("/:id", requireAuth, async (req, res, next) => {
+tagsRouter.delete("/:id", requireAuth, requireRole("admin"), async (req, res, next) => {
   try {
     const id = z.string().uuid().parse(req.params.id);
     await prisma.tag.delete({ where: { id } });

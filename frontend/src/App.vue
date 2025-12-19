@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted } from "vue";
+import { computed, onBeforeUnmount, onMounted, watch } from "vue";
 import { useRoute, useRouter, RouterLink, RouterView } from "vue-router";
 import { useAuthStore } from "./stores/auth";
 
@@ -7,6 +7,7 @@ const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
 const nextAfterLogin = computed(() => (typeof route.fullPath === "string" ? route.fullPath : "/"));
+const isAdmin = computed(() => auth.user?.roles?.includes("admin"));
 
 function onUnauthorized(e: Event) {
   const detail = (e as CustomEvent)?.detail as { next?: string } | undefined;
@@ -24,6 +25,15 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener("auth:unauthorized", onUnauthorized as EventListener);
 });
+
+watch(
+  () => auth.isAuthed,
+  (authed) => {
+    if (!authed && route.meta?.requiresAuth) {
+      void router.replace({ name: "login", query: { next: route.fullPath } });
+    }
+  }
+);
 </script>
 
 <template>
@@ -35,7 +45,7 @@ onBeforeUnmount(() => {
         <nav class="flex items-center gap-4 text-sm">
           <RouterLink to="/catalog" class="hover:underline">Каталог</RouterLink>
           <RouterLink to="/news" class="hover:underline">Новости</RouterLink>
-          <RouterLink v-if="auth.isAuthed" to="/admin/products" class="hover:underline">Админ</RouterLink>
+          <RouterLink v-if="isAdmin" to="/admin/products" class="hover:underline">Админ</RouterLink>
         </nav>
 
         <div class="flex items-center gap-3 text-sm">
